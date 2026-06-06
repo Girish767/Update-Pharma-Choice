@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Update Drug | Pharma Choice{% endblock %}
+{% block content %}
+<div class="container" style="max-width:700px;">
+    <h1>Update Drug</h1>
+    <div class="card">
+        <form method="POST">
+            <div class="form-group">
+                <label>Drug Name *</label>
+                <input type="text" name="name" value="{{ drug.name }}" required />
+            </div>
+            <div class="form-group">
+                <label>Category *</label>
+                <select name="category_id" required>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if cat.id==drug.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label>Price (₹) *</label>
+                    <input type="number" name="price" value="{{ drug.price }}" min="0" step="0.01" required />
+                </div>
+                <div class="form-group">
+                    <label>Discount (%)</label>
+                    <input type="number" name="discount" value="{{ drug.discount }}" min="0" max="100" step="0.1" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Stock Quantity</label>
+                <input type="number" name="stock" value="{{ drug.stock }}" min="0" />
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3">{{ drug.description }}</textarea>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;padding:12px;">Update Drug</button>
+                <a href="{{ url_for('view_drugs') }}" class="btn btn-warning" style="flex:1;padding:12px;text-align:center;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

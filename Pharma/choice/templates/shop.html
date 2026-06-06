@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Shop Medicines | PharmaChoice{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <div class="page-header-icon">🛍</div>
+    <div>
+        <h1>All Medicines</h1>
+        <p>Browse our complete collection of genuine pharmaceuticals</p>
+    </div>
+</div>
+
+<div class="container">
+    <form method="GET" action="{{ url_for('shop') }}">
+        <div class="filter-bar">
+            <div class="form-group">
+                <label>Filter by Category</label>
+                <select name="category_id">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if sel_cat==cat.id|string %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Search Medicine</label>
+                <input type="text" name="search" placeholder="e.g. Paracetamol, Vitamin C..." value="{{ search }}" />
+            </div>
+            <button type="submit" class="btn btn-primary">🔍 Search</button>
+            <a href="{{ url_for('shop') }}" class="btn btn-warning">Clear</a>
+        </div>
+    </form>
+
+    <div class="drug-grid">
+        {% for drug in drugs %}
+        {% set disc_price = drug.price - (drug.price * drug.discount / 100) %}
+        <div class="drug-card">
+            <div class="drug-icon">💊</div>
+            <h3>{{ drug.name }}</h3>
+            <span class="category">{{ drug.category_name }}</span>
+            {% if drug.description %}<p class="desc">{{ drug.description }}</p>{% endif %}
+            <div style="margin-top:8px;">
+                <span class="price">₹{{ "%.2f"|format(disc_price) }}</span>
+                {% if drug.discount > 0 %}
+                <span class="original-price">₹{{ "%.1f"|format(drug.price) }}</span>
+                <span class="discount-badge">{{ drug.discount|int }}% OFF</span>
+                {% endif %}
+            </div>
+            <div class="stock-line">In Stock: <span>{{ drug.stock }}</span></div>
+            <div class="actions">
+                {% if session.get('customer_id') %}
+                <a href="{{ url_for('place_order', did=drug.id) }}" class="btn btn-primary btn-sm">🛒 Order Now</a>
+                {% else %}
+                <a href="{{ url_for('customer_login') }}" class="btn btn-outline btn-sm">Login to Order</a>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column:1/-1;">
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <p>No medicines found matching your search.</p>
+                <a href="{{ url_for('shop') }}" class="btn btn-primary" style="margin-top:16px;">View All Medicines</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

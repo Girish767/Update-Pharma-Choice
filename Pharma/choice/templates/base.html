@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PharmaChoice{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav>
+    <a class="nav-brand" href="{{ url_for('home') }}">PharmaChoice</a>
+    <div class="nav-links">
+        {% if session.get('admin') %}
+            <a href="{{ url_for('dashboard') }}"     {% if request.endpoint=='dashboard'     %}class="btn-active"{% endif %}>📊 Dashboard</a>
+            <a href="{{ url_for('add_category') }}"  {% if request.endpoint=='add_category'  %}class="btn-active"{% endif %}>Add Category</a>
+            <a href="{{ url_for('view_category') }}" {% if request.endpoint=='view_category' %}class="btn-active"{% endif %}>Categories</a>
+            <a href="{{ url_for('add_drug') }}"      {% if request.endpoint=='add_drug'      %}class="btn-active"{% endif %}>Add Drug</a>
+            <a href="{{ url_for('view_drugs') }}"    {% if request.endpoint=='view_drugs'    %}class="btn-active"{% endif %}>Drugs</a>
+            <a href="{{ url_for('view_orders') }}"   {% if request.endpoint=='view_orders'   %}class="btn-active"{% endif %}>Orders</a>
+            <a href="{{ url_for('logout') }}" class="nav-logout">Logout</a>
+        {% elif session.get('customer_id') %}
+            <a href="{{ url_for('shop') }}"      {% if request.endpoint=='shop'      %}class="btn-active"{% endif %}>🛍 Shop</a>
+            <a href="{{ url_for('my_orders') }}" {% if request.endpoint=='my_orders' %}class="btn-active"{% endif %}>📦 My Orders</a>
+            <a href="{{ url_for('profile') }}"   {% if request.endpoint=='profile'   %}class="btn-active"{% endif %}>👤 Profile</a>
+            <a href="{{ url_for('customer_logout') }}" class="nav-logout">Logout</a>
+        {% else %}
+            <a href="{{ url_for('shop') }}">🛍 Shop</a>
+            <a href="{{ url_for('customer_login') }}" {% if request.endpoint=='customer_login' %}class="btn-active"{% endif %}>Login</a>
+            <a href="{{ url_for('register') }}"       {% if request.endpoint=='register'       %}class="btn-active"{% endif %}>Register</a>
+            <a href="{{ url_for('login') }}" class="nav-logout" style="background:rgba(0,184,148,.15);border-color:var(--em) !important;color:var(--em) !important;">🔐 Admin Login</a>
+        {% endif %}
+    </div>
+</nav>
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+</div>
+{% block content %}{% endblock %}
+<footer>
+    <div class="footer-inner">
+        <div class="footer-col">
+            <div class="footer-brand">PharmaChoice</div>
+            <p>Your trusted online pharmacy. Genuine medicines, fast delivery, and secure payments — always.</p>
+            <div class="footer-pay-icons" style="margin-top:14px;">
+                <span class="pay-chip">🚚 Cash on Delivery</span>
+            </div>
+        </div>
+        <div class="footer-col">
+            <h5>Quick Links</h5>
+            <ul class="footer-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('shop') }}">Shop Medicines</a></li>
+                <li><a href="{{ url_for('customer_login') }}">My Account</a></li>
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h5>Categories</h5>
+            <ul class="footer-links">
+                <li><a href="{{ url_for('shop') }}">Antibiotics</a></li>
+                <li><a href="{{ url_for('shop') }}">Painkillers</a></li>
+                <li><a href="{{ url_for('shop') }}">Vitamins &amp; Supplements</a></li>
+                <li><a href="{{ url_for('shop') }}">Diabetes Care</a></li>
+                <li><a href="{{ url_for('shop') }}">Cardiac Care</a></li>
+                <li><a href="{{ url_for('shop') }}">Cold &amp; Flu</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h5>Contact</h5>
+            <ul class="footer-links">
+                <li><a href="#">📞 1800-123-4567 (Toll Free)</a></li>
+                <li><a href="#">✉ support@pharmachoice.in</a></li>
+                <li><a href="#">📍 Bengaluru, Karnataka</a></li>
+                <li><a href="#">⏰ 24 × 7 Support</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 PharmaChoice — Your Health, Our Priority · All rights reserved</div>
+</footer>
+{% block extra_js %}{% endblock %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | PharmaChoice{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="page-header-icon">📊</div>
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p>Overview of your pharmacy operations</p>
+    </div>
+</div>
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">💊</div>
+            <div class="number">{{ total_drugs }}</div>
+            <div class="label">Total Medicines</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="number">{{ total_orders }}</div>
+            <div class="label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="number">{{ total_customers }}</div>
+            <div class="label">Customers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <!-- total_revenue now correctly passed from app.py -->
+            <div class="number">₹{{ "%.0f"|format(total_revenue) }}</div>
+            <div class="label">Total Revenue</div>
+        </div>
+    </div>
+
+    {% if low_stock %}
+    <div class="low-stock-alert mb-20">
+        <h4>⚠ Low Stock Alert ({{ low_stock|length }} items below 10 units)</h4>
+        {% for d in low_stock %}
+        <span style="display:inline-block;background:var(--warn-l);border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:3px 10px;font-size:13px;margin:3px;color:#8a6200;font-weight:600;">
+            {{ d.name }} — <strong>{{ d.stock }} left</strong>
+        </span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="{{ url_for('add_drug') }}"    class="btn btn-primary">+ Add Medicine</a>
+        <a href="{{ url_for('view_orders') }}" class="btn btn-dark">📦 View Orders</a>
+        <a href="{{ url_for('view_drugs') }}"  class="btn btn-outline">View All Medicines</a>
+    </div>
+</div>
+{% endblock %}

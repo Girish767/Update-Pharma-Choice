@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Place Order | PharmaChoice{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media (max-width: 600px) { .payment-grid { grid-template-columns: repeat(2,1fr); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-icon">🛒</div>
+    <div>
+        <h1>Place Order</h1>
+        <p>Review your item and choose a payment method</p>
+    </div>
+</div>
+
+<div class="container" style="max-width:680px;">
+    {# disc_price is passed directly from app.py (handles None discount safely) #}
+    <div class="card">
+
+        <!-- Drug summary -->
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+            <div style="font-size:48px;">💊</div>
+            <div style="flex:1;">
+                <h2 style="margin-bottom:4px;">{{ drug.name }}</h2>
+                <span class="category" style="display:inline-block;background:var(--mint);color:var(--em-d);font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 10px;border-radius:20px;">{{ drug.category_name }}</span>
+                {% if drug.description %}
+                <p style="color:var(--muted);font-size:14px;margin-top:10px;line-height:1.6;">{{ drug.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Price & stock -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+            <div style="background:var(--cream);border-radius:10px;padding:16px;">
+                <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px;">Price Per Unit</div>
+                <div style="font-size:22px;font-weight:800;color:var(--dark);">₹{{ "%.2f"|format(disc_price) }}</div>
+                {% if drug.discount > 0 %}
+                <div style="font-size:13px;color:var(--muted);text-decoration:line-through;">₹{{ drug.price }}</div>
+                <div style="font-size:12px;color:var(--accent);font-weight:700;margin-top:2px;">{{ drug.discount|int }}% OFF applied</div>
+                {% endif %}
+            </div>
+            <div style="background:var(--cream);border-radius:10px;padding:16px;">
+                <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px;">Available Stock</div>
+                <div style="font-size:22px;font-weight:800;color:var(--em-d);">{{ drug.stock }}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">units ready to ship</div>
+            </div>
+        </div>
+
+        <form method="POST" id="orderForm">
+
+            <!-- Quantity -->
+            <div class="form-group">
+                <label>Quantity *</label>
+                <input type="number" name="qty" id="qtyInput"
+                       min="1" max="{{ drug.stock }}" value="1" required
+                       oninput="updateTotal(this.value)" />
+            </div>
+
+            <!-- Order total -->
+            <div class="total-box">
+                <div>
+                    <div class="label-text">Order Total</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:2px;">Including all discounts</div>
+                </div>
+                <div class="amount" id="total">₹{{ "%.2f"|format(disc_price) }}</div>
+            </div>
+
+            <!-- =====================================================
+                 PAYMENT METHODS
+                 All 9 options are VISIBLE to the user.
+                 Only COD is functional — a hidden input always
+                 submits "COD"; disabled radios cannot override it.
+                 ===================================================== -->
+            <div class="payment-section">
+                <div class="payment-label">Select Payment Method</div>
+
+                <!-- The real submitted value — hardcoded to COD, immutable -->
+                <input type="hidden" name="payment_method" value="COD">
+
+                <div class="payment-grid">
+
+                    <!-- ── DISABLED (visible, greyed, "Coming Soon" badge) ── -->
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">📱</span>PhonePe</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">🟡</span>Google Pay</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">🔵</span>Paytm</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">🔷</span>BHIM UPI</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">💳</span>Debit / Credit Card</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">🏦</span>Net Banking</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">🛒</span>Amazon Pay</label>
+                    </div>
+                    <div class="payment-option disabled-option">
+                        <input type="radio" disabled>
+                        <label><span class="pay-icon">👛</span>MobiKwik</label>
+                    </div>
+
+                    <!-- ── COD — the ONLY working option, always selected ── -->
+                    <div class="payment-option cod-option">
+                        <input type="radio" id="pay_cod_display" checked>
+                        <label for="pay_cod_display">
+                            <span class="pay-icon">🚚</span>
+                            Cash on Delivery
+                        </label>
+                    </div>
+
+                </div><!-- /.payment-grid -->
+
+                <!-- Status / warning banner (main.js toggles this on disabled clicks) -->
+                <div class="cod-info-banner" id="codBanner">
+                    <span style="font-size:16px;">🚚</span>
+                    Only <strong>&nbsp;Cash on Delivery&nbsp;</strong> is available right now. Other payment methods are coming soon!
+                </div>
+
+            </div><!-- /.payment-section -->
+
+            <!-- Actions -->
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;padding:14px;">✓ Confirm Order</button>
+                <a href="{{ url_for('shop') }}" class="btn btn-warning" style="flex:1;padding:14px;text-align:center;">✕ Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* Set price BEFORE main.js runs so updateTotal() on DOMContentLoaded gets correct value */
+    window.unitPrice = {{ disc_price }};
+</script>
+{% endblock %}

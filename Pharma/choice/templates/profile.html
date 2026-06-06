@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Profile | Pharma Choice{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;">
+    <h1>My Profile</h1>
+    <div class="card" style="text-align:center;padding:30px;margin-bottom:20px;">
+        <div style="width:80px;height:80px;border-radius:50%;background:#008080;color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            {{ customer.name[0].upper() }}
+        </div>
+        <h2 style="color:#008080;">{{ customer.name }}</h2>
+        <p style="color:#888;">{{ customer.email }}</p>
+        <p style="color:#888;">{{ customer.phone or '' }}</p>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom:20px;">Edit Profile</h3>
+        <form method="POST">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" name="name" value="{{ customer.name }}" required />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="phone" value="{{ customer.phone or '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="">Select</option>
+                        <option {% if customer.gender=='Male' %}selected{% endif %}>Male</option>
+                        <option {% if customer.gender=='Female' %}selected{% endif %}>Female</option>
+                        <option {% if customer.gender=='Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea name="address" rows="3">{{ customer.address or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;">Update Profile</button>
+        </form>
+    </div>
+
+    <div class="card" style="text-align:center;">
+        <a href="{{ url_for('my_orders') }}" class="btn btn-primary">View My Orders</a>
+        <a href="{{ url_for('shop') }}" class="btn btn-success" style="margin-left:10px;">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
